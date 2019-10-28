@@ -1,5 +1,5 @@
 
-
+//This class needs to be a bit more organized/broken down because it is getting too lengthy.
 import java.io.*;
 import java.net.*;
 import java.nio.*;
@@ -19,6 +19,8 @@ import java.net.InetAddress;
 
 public class SelectServer {
     public static int BUFFERSIZE = 10000000;
+    public static ServerData serverData;
+    
     public static void main(String args[]) throws Exception 
     {
         if (args.length != 1)
@@ -89,6 +91,10 @@ public class SelectServer {
                         SocketChannel cchannel = ((ServerSocketChannel)key.channel()).accept();
                         cchannel.configureBlocking(false);
                         System.out.println("Accepted connection from " + cchannel.socket().getLocalAddress().toString().substring(1)+":"+ cchannel.socket().getPort());
+                       
+                        //Create User class instance for that person, add them to the system
+                        User newUser = new User(true,false,false,null,cchannel.socket(),cchannel); //Basically once client opens their app, they are connected, and by default, anonymous.
+                        serverData.addUser(newUser);
                         
                         // Register the new connection for read operation
                         cchannel.register(selector, SelectionKey.OP_READ);
@@ -102,7 +108,8 @@ public class SelectServer {
 							if (key.isReadable())
 							{
 								Socket socket = cchannel.socket();
-								
+								User user = null; //<- Identify user that we are serving now based on socket&socketchannel TODO
+						
 								String message = readMessageFromClient(cchannel,socket,key);
 								if (message.equals("")) {continue;} //nothing to read
 								
@@ -119,7 +126,7 @@ public class SelectServer {
 								//   "kick","black","bremove","msg","part"}
 								
 								if(keyword.equals("host")){
-									hostRoom(cchannel,socket,messageDecoder.getMsgArray());
+									hostRoom(cchannel,socket,messageDecoder.getMsgArray(),user);
 									//sendReplyMessage
 									//TODO host a room and send reply message
 								}
@@ -282,8 +289,24 @@ public class SelectServer {
 		}
 	
 
-	public static void hostRoom(SocketChannel socketChannel,Socket socket,String[] msgArray) {
-		//TODO
+	public static void hostRoom(SocketChannel socketChannel,Socket socket,String[] msgArray,User user) {
+		//1.Generate random room code
+		byte[] array = new byte[7]; // code is of length 7
+		new Random().nextBytes(array);
+		String roomCode = new String(array, Charset.forName("UTF-8"));
+		 
+		System.out.println("Room code generated is: " + roomCode);
+		
+		//2.Get room name that the user provided
+		String roomName = msgArray[1];
+		
+		//3.Create that room 
+		Room newRoom = new Room(roomCode,roomName,user,new ArrayList<User>(),new ArrayList<AuthorizedUser>());
+		serverData.addRoom(newRoom);
+		
+		//4.Update the user - room and isAdmin.
+		user.updateInRoom(newRoom);
+		user.updateIsAdmin(true);
 	}
 }
 
