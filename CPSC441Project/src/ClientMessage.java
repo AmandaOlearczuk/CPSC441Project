@@ -1,3 +1,4 @@
+
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
@@ -30,7 +31,6 @@ public class ClientMessage {
 			//Convert arraylist of messages to String separated by "\n"s
 			String listString = String.join("\n", rawMessage);
 			msgToServer = keywd + "\n" + listString + "\n";
-			msgToServer = includeCapacity(msgToServer);
 			
 			}
 		else {isGoodToSend=false;}
@@ -90,13 +90,15 @@ public class ClientMessage {
 	* For example: Input: "HelloThere" Output: "10\nHelloThere"
 	* What's it used for? For sending messages to the server, so the server knows the size of message to read. 
 	* Returns: String
-	*/
+	* 
+	* MIGHT NOT BE NEEDED AT ALL
+	*
 	public String includeCapacity(String s){
 		String str = "\n" + s;
 		ByteBuffer bb = ByteBuffer.wrap(str.getBytes());
 		str = Integer.toString(bb.capacity()) + str; //Format : "SIZEOFMSG\nFile1\nFile2\nFile3...."
 		return str;
-	}
+	}*/
 	
 	public String getMessageToServer() {
 		return msgToServer;

@@ -1,12 +1,4 @@
-/**
-*  Amanda Olearczuk
-*  TCP/UDP accepting server
-*  UDPServer is an echo server
-*  TCPClient can ask TCPServer for list of files in current directory, and download those files.
-*
-* Works perfectly: TCPClient - Server interaction.
-* Doesn't work: Server is UDP-blocking, and once a UDPClient logs out, it won't accept another UDPClient.
-*/
+
 
 import java.io.*;
 import java.net.*;
@@ -112,12 +104,26 @@ public class SelectServer {
 								Socket socket = cchannel.socket();
 								
 								String message = readMessageFromClient(cchannel,socket,key);
-								if (message.equals("")) {continue;}
+								if (message.equals("")) {continue;} //nothing to read
 								
 								
 								System.out.println("TCP Client: "+ message);
 								
-								//MessageDecoder msgDecoder = new MessageDecoder(message);
+								// Now, decode this message and act appropriately
+								
+								ServerMsgDecoder messageDecoder = new ServerMsgDecoder(message);
+								String keyword = messageDecoder.getKeyword();
+								
+								//Keyword is one of: {"login","logout","sign","join","host","search",
+								//   "exit","quit","friends","befriend","unfriend","list",
+								//   "kick","black","bremove","msg","part"}
+								
+								if(keyword.equals("host")){
+									hostRoom(cchannel,socket,messageDecoder.getMsgArray());
+									//sendReplyMessage
+									//TODO host a room and send reply message
+								}
+								
 								
 								
 								/**
@@ -233,18 +239,6 @@ public class SelectServer {
         
     }catch(IOException e) {System.out.println(e);}
  }  
-	
-	/** The following method takes a string and appends it's own capacity in front plus a "\n" symbol for separation.
-	* For example: Input: "HelloThere" Output: "10\nHelloThere"
-	* What's it used for? For sending messages to the client, so the client knows the size of message to read. 
-	* Returns: String
-	*/
-	public static String includeCapacity(String s){
-		String str = "\n" + s;
-		ByteBuffer bb = ByteBuffer.wrap(str.getBytes());
-		str = Integer.toString(bb.capacity()) + str; //Format : "SIZEOFMSG\nFile1\nFile2\nFile3...."
-		return str;
-	}
 
 	/**
 	 * This method is for reading the message from the client's socket
@@ -286,6 +280,13 @@ public class SelectServer {
 		String message = charBuffer.toString().trim();
 		return message;
 		}
+	
+
+	public static void hostRoom(SocketChannel socketChannel,Socket socket,String[] msgArray) {
+		//TODO
 	}
+}
+
+	
 
 

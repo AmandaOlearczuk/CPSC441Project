@@ -1,4 +1,5 @@
 
+
 public class MainMenuSyntaxChecker {
 	
 	private int login = 1;

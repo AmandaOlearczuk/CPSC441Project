@@ -1,4 +1,5 @@
 
+
 /*
  * A simple TCP client that sends messages to a server and display the message
    from the server. 
@@ -9,7 +10,7 @@
 
 import java.io.*; 
 import java.net.*;
-import java.util.ArrayList; 
+import java.util.ArrayList;
 
 class TCPClient { 
 
