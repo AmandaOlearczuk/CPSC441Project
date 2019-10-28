@@ -135,7 +135,7 @@ class TCPClient {
     	if(message.isGoodToSend()) {
     		System.out.println("Sending the followng message to server: ");
     		System.out.println(message.getMessageToServer());
-    		try{outbuffer.writeBytes(message.getMessageToServer() + "\n");}catch(Exception e){System.out.println("socket exception");}
+    		try{outbuffer.writeBytes(message.getMessageToServer());}catch(Exception e){System.out.println("socket exception");}
     	}
     		
         //3.Receive message from the server with the room information

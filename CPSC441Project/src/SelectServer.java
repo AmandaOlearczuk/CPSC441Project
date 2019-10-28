@@ -44,7 +44,7 @@ public class SelectServer {
         CharsetEncoder encoder = charset.newEncoder(); // Transform 16-bit Unicode characters into a bytes.
 		
         ByteBuffer inBuffer = null; //Buffer to send data
-        CharBuffer outBuffer = null; //Buffer to convert inbuffer's bytes to chars
+        CharBuffer charBuffer = null; //Buffer to convert inbuffer's bytes to chars
         int bytesSent, bytesRecv;     // number of bytes sent or received - for error checking if msg was delivered to client
         
         // Initialize the selector
@@ -111,35 +111,14 @@ public class SelectServer {
 							{
 								Socket socket = cchannel.socket();
 								
-								// Open input and output streams (Receive bytes but send chars)
-								inBuffer = ByteBuffer.allocateDirect(BUFFERSIZE);
-								outBuffer = CharBuffer.allocate(BUFFERSIZE); //Size the inBuffer to accomodate BUFFERSIZE bytes
+								String message = readMessageFromClient(cchannel,socket,key);
+								if (message.equals("")) {continue;}
 								
 								
-								// Read from socket - and if socket doen't exist - close connection with that client
-								bytesRecv=0;					
-								try{ bytesRecv = cchannel.read(inBuffer);
-								} catch(SocketException e) {
-									System.out.println("Closed connection: " + cchannel.socket().getLocalAddress().toString().substring(1)+":"+ cchannel.socket().getPort());
-									key.cancel();
-									socket.close();
-									continue;
-								}
+								System.out.println("TCP Client: "+ message);
 								
-								//Check if connection was closed
-								if (bytesRecv <= 0)
-								{
-									//System.out.println("read() error, or connection closed");
-									key.cancel();  // deregister the socket
-									continue;
-								}
+								//MessageDecoder msgDecoder = new MessageDecoder(message);
 								
-								inBuffer.flip();      // make buffer available 
-								decoder.decode(inBuffer, outBuffer, false); //decode message from inbuffer -> outbuffer
-								outBuffer.flip();
-								line = outBuffer.toString().trim();
-								
-								System.out.println("TCP Client: "+ line);
 								
 								/**
 								//Terminate command Command: terminate
@@ -266,57 +245,47 @@ public class SelectServer {
 		str = Integer.toString(bb.capacity()) + str; //Format : "SIZEOFMSG\nFile1\nFile2\nFile3...."
 		return str;
 	}
-	
-	/** This method takes a string and appends either "0\n" or "1\n" to indicate whether the following message is a file,
-	* and therefore should be treated differently by a client.
-	* String s - string 
-	* Boolean b - 1 if message is to be treated as file, 0 if not.
-	*/
-	public static String includeIsFile(String s,Boolean b){
-		String str = s;
-		if(b == true){
-			str = "1\n"+str;
-		}else{
-			str = "0\n"+str;
+
+	/**
+	 * This method is for reading the message from the client's socket
+	 * @param socketChannel
+	 * @param socket
+	 * @param key
+	 * @return String - message from client. "" means no message was read
+	 * @throws IOException
+	 */
+	public static String readMessageFromClient(SocketChannel socketChannel,Socket socket,SelectionKey key) throws IOException {
+		
+		// Open input and output streams (Receive bytes but send chars)
+		ByteBuffer inBuffer = ByteBuffer.allocateDirect(BUFFERSIZE);
+		CharBuffer charBuffer = CharBuffer.allocate(BUFFERSIZE); //Size the inBuffer to accomodate BUFFERSIZE bytes
+		Charset charset = Charset.forName( "us-ascii" ); //For converting 16-bit unicode characters to bytes.
+		CharsetDecoder decoder = charset.newDecoder();  // Transform a sequence of bytes into a sequence of 16-bit Unicode characters.
+		
+		// Read from socket - and if socket doen't exist - close connection with that client
+		int bytesRecv=0;					
+		try{ bytesRecv = socketChannel.read(inBuffer);
+		} catch(Exception e) {
+			System.out.println("Closed connection: " + socketChannel.socket().getLocalAddress().toString().substring(1)+":"+ socketChannel.socket().getPort());
+			key.cancel();
+			socket.close();
+			return "";
 		}
 		
-		return str;
+		//Check if connection was closed
+		if (bytesRecv <= 0)
+		{
+			System.out.println("read() error, or connection closed");
+			key.cancel();  // deregister the socket
+			return "";
+		}
 		
-	}
-	
-	/** The string combines includeCapacity() and includeIsFile() methods AND includes port number in front.
-	* String s - string to send
-	* Boolean b - 1 if the msg to be sent is to be treated as a file, 0 if not.
-	* int portNum - port number of current connection
-	*/
-	public static String addInformation(String s,Boolean b,int portNum){
-		String str1 = includeCapacity(s);  //eg. "HelloThere" -> "20\nHelloThere"
-		String str2 = includeIsFile(str1,b); // eg. "20\nHelloThere" -> "0\n20\nHelloThere"
-		str2 = Integer.toString(portNum) + "\n" + str2;
-		
-		return str2;
-		
+		inBuffer.flip();      // make buffer available 
+		decoder.decode(inBuffer, charBuffer, false); //decode message from inbuffer -> outbuffer
+		charBuffer.flip();
+		String message = charBuffer.toString().trim();
+		return message;
+		}
 	}
 
-/**
-* The following method returns current files in a directory in a string format, each file is separated with "\n" for display purposes.
-* Returns: String
-*/
-	public static String getFilesInCurrentDir(){
-		File folder = new File(System.getProperty("user.dir"));
-		File[] listOfFiles = folder.listFiles();
-		//Get list of files as string
-		String filesStr = "";
-		for (int i = 0; i < listOfFiles.length; i++) {
-			if (listOfFiles[i].isFile()) {
-				filesStr = filesStr.concat(listOfFiles[i].getName() + "\n");
-				
-			} else if (listOfFiles[i].isDirectory()) {
-				continue;
-			}
-		}
-		filesStr = filesStr.substring(0,filesStr.length()-1); //Remove the "\n" on the end.
-		return filesStr;
-	}
-}
 
