@@ -43,4 +43,18 @@ public class ServerData {
 		}
 		return null;
 	}
+	
+	public void printAllDataAsString() {
+		System.out.println(">>> Printing data from ServerData.java class .. <<<");
+		System.out.println(">>> Live rooms: <<<");
+		for(Room room:liveRooms) {
+			System.out.println("Room: " + room + ",Room name: " + room.getRoomName() + ",Room code: "+ room.getRoomCode() +",Admin is: "+ room.getAdmin() + ",Guests: " +
+					room.getGuests() + ",Blacklist: " + room.getBlacklist());
+		}
+		
+		System.out.println(">>> Total users in system: <<<");
+		for(User user:usersInSystem) {
+			System.out.println("User: " + user + ", Online status: " + user.isOnline() + ",In room: "+user.getInRoom());	
+		}
+	}
 }

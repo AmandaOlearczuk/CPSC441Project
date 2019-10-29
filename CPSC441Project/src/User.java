@@ -58,5 +58,38 @@ public class User {
 	public SocketChannel getSocketChannel() {
 		return socketChannel;
 	}
+
+	public boolean isOnline() {
+		return isOnline;
+	}
+
+	public void setOnline(boolean isOnline) {
+		this.isOnline = isOnline;
+	}
+
+	public boolean isAdmin() {
+		return isAdmin;
+	}
+
+	public void setAdmin(boolean isAdmin) {
+		this.isAdmin = isAdmin;
+	}
+
+	public boolean isGuest() {
+		return isGuest;
+	}
+
+	public void setGuest(boolean isGuest) {
+		this.isGuest = isGuest;
+	}
+
+	public Room getInRoom() {
+		return inRoom;
+	}
+
+	public void setInRoom(Room inRoom) {
+		this.inRoom = inRoom;
+	}
+	
 	
 }

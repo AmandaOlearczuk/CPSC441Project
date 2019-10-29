@@ -96,6 +96,8 @@ public class SelectServer {
                         User newUser = new User(true,false,false,cchannel.socket(),cchannel); //Basically once client opens their app, they are connected, and by default, anonymous.
                         serverData.addUser(newUser);
                         
+                        serverData.printAllDataAsString();
+                        
                         // Register the new connection for read operation
                         cchannel.register(selector, SelectionKey.OP_READ);
                       
@@ -128,6 +130,8 @@ public class SelectServer {
 								if(keyword.equals("host")){ //Host room, send reply message to client. DONE.
 									hostRoom(cchannel,socket,messageDecoder.getMsgArray(),user);
 								}
+								
+								serverData.printAllDataAsString();
 								
 								
 								
