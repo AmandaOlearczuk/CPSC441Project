@@ -270,6 +270,7 @@ public class SelectServer {
 		try{ bytesRecv = socketChannel.read(inBuffer);
 		} catch(Exception e) {
 			System.out.println("Closed connection: " + socketChannel.socket().getLocalAddress().toString().substring(1)+":"+ socketChannel.socket().getPort());
+			//TODO: Set user status to OFFLINE, if they had a room, DELETE room, if they had guests in room, SEND MSG to guests saying room was closed.
 			key.cancel();
 			socket.close();
 			return "";
