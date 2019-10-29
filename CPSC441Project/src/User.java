@@ -11,7 +11,23 @@ public class User {
 	SocketChannel socketChannel;
 	
 	/**
-	 * Constructor
+	 * Constructor 1
+	 * @param isadmin
+	 * @param isguest
+	 * @param inroom
+	 * @param skt
+	 * @param sktChannel
+	 */
+	public User(boolean isonline,boolean isadmin,boolean isguest,Socket skt,SocketChannel sktChannel) {
+		isOnline = isonline;
+		isAdmin = isadmin;
+		isGuest = isguest;
+		socket = skt;
+		socketChannel = sktChannel;
+	}
+	
+	/**
+	 * Constructor 2
 	 * @param isadmin
 	 * @param isguest
 	 * @param inroom
@@ -33,6 +49,14 @@ public class User {
 	
 	public void updateIsAdmin(Boolean bool) {
 		isAdmin = bool;
+	}
+	
+	public Socket getSocket() {
+		return socket;
+	}
+	
+	public SocketChannel getSocketChannel() {
+		return socketChannel;
 	}
 	
 }

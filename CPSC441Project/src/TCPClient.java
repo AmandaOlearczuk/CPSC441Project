@@ -56,7 +56,7 @@ class TCPClient {
             if(syntaxChecker.isMainMenuLogIn(line)) {}
         	if(syntaxChecker.isMainMenuSignUp(line)) {}
         	if(syntaxChecker.isMainMenuJoinRoom(line)) {}
-        	if(syntaxChecker.isMainMenuHostRoom(line)) { ArrayList<String> roomInfo = hostRoom(outBuffer);}
+        	if(syntaxChecker.isMainMenuHostRoom(line)) { ArrayList<String> roomInfo = hostRoom(outBuffer,inBuffer);}
         	if(syntaxChecker.isMainMenuSearchForRoom(line)) {}
         	if(syntaxChecker.isMainMenuExit(line)) {System.out.println("Goodbye!");clientSocket.close();System.exit(0);}
         	
@@ -122,12 +122,15 @@ class TCPClient {
      * This function is responsible for sending message to the server that client wants to host a room.
      * @return ArrayList<String> - response message from the server.
      */
-    public static ArrayList<String> hostRoom(DataOutputStream outbuffer) throws IOException {
+    public static ArrayList<String> hostRoom(DataOutputStream outbuffer,BufferedReader inBuffer) throws IOException {
     	
+    	while(true) { //loop just in case room name was entered as empty.
+    		
     	//1.Prompt user to enter a room name
     	System.out.println("Enter a room name: ");
     	BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in)); 
     	String roomName = inFromUser.readLine();
+    	if (roomName.trim().equals("")) {System.out.println("Invalid room name, please try again.");continue;} //go to top of loop if roomname was empty
     	ArrayList<String> msgsInArray = new ArrayList<String>();
     	msgsInArray.add(roomName);
     	
@@ -140,9 +143,33 @@ class TCPClient {
     	}
     		
         //3.Receive message from the server with the room information
-    	//TODO
+    	System.out.println("Fetching response from server..");
+    	String line = fetchMessageFromServer(inBuffer);
+    	System.out.println("Response from server fetched: ");
+		System.out.println(line);
+    	break;
+    	
+    	}
     	
     	ArrayList<String> al = new ArrayList<String>();
     	return al;
+    }
+    
+    /**
+     * This is a method to fetch message from a server - BLOCKS ON .readLine(). Basically waits for something in buffer and THEN proceeds.
+     * @param inBuffer
+     * @return
+     * @throws IOException
+     */
+    public static String fetchMessageFromServer(BufferedReader inBuffer) throws IOException {
+
+    	String buff_capacity = inBuffer.readLine();
+    	int msg_length = Integer.parseInt(buff_capacity);
+    	
+		char[] msgReceived = new char[msg_length];
+		inBuffer.read(msgReceived,0,msg_length);
+		String line = new String(msgReceived).trim();
+		
+		return line;
     }
 } 

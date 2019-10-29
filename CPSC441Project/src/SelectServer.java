@@ -19,7 +19,7 @@ import java.net.InetAddress;
 
 public class SelectServer {
     public static int BUFFERSIZE = 10000000;
-    public static ServerData serverData;
+    public static ServerData serverData = new ServerData();
     
     public static void main(String args[]) throws Exception 
     {
@@ -30,16 +30,16 @@ public class SelectServer {
         }
 
         // Initialize buffers and coders for channel receive and send
-        String line = "";
+        //String line = "";
 		
 		//Encoder and decoders between bytes<->chars
-        Charset charset = Charset.forName( "us-ascii" ); //For converting 16-bit unicode characters to bytes.
-        CharsetDecoder decoder = charset.newDecoder();  // Transform a sequence of bytes into a sequence of 16-bit Unicode characters.
-        CharsetEncoder encoder = charset.newEncoder(); // Transform 16-bit Unicode characters into a bytes.
+        //Charset charset = Charset.forName( "us-ascii" ); //For converting 16-bit unicode characters to bytes.
+        //CharsetDecoder decoder = charset.newDecoder();  // Transform a sequence of bytes into a sequence of 16-bit Unicode characters.
+        //CharsetEncoder encoder = charset.newEncoder(); // Transform 16-bit Unicode characters into a bytes.
 		
-        ByteBuffer inBuffer = null; //Buffer to send data
-        CharBuffer charBuffer = null; //Buffer to convert inbuffer's bytes to chars
-        int bytesSent, bytesRecv;     // number of bytes sent or received - for error checking if msg was delivered to client
+        //ByteBuffer inBuffer = null; //Buffer to send data
+        //CharBuffer charBuffer = null; //Buffer to convert inbuffer's bytes to chars
+        //int bytesSent, bytesRecv;     // number of bytes sent or received - for error checking if msg was delivered to client
         
         // Initialize the selector
         Selector selector = Selector.open(); //Can examine one or more Java NIO Channel instances, 
@@ -93,7 +93,7 @@ public class SelectServer {
                         System.out.println("Accepted connection from " + cchannel.socket().getLocalAddress().toString().substring(1)+":"+ cchannel.socket().getPort());
                        
                         //Create User class instance for that person, add them to the system
-                        User newUser = new User(true,false,false,null,cchannel.socket(),cchannel); //Basically once client opens their app, they are connected, and by default, anonymous.
+                        User newUser = new User(true,false,false,cchannel.socket(),cchannel); //Basically once client opens their app, they are connected, and by default, anonymous.
                         serverData.addUser(newUser);
                         
                         // Register the new connection for read operation
@@ -108,13 +108,13 @@ public class SelectServer {
 							if (key.isReadable())
 							{
 								Socket socket = cchannel.socket();
-								User user = null; //<- Identify user that we are serving now based on socket&socketchannel TODO
+								User user = serverData.getUserCorresponding(socket); //<- Identify user that we are serving now based on socket 
 						
 								String message = readMessageFromClient(cchannel,socket,key);
-								if (message.equals("")) {continue;} //nothing to read
+								if (message.trim().equals("")) {continue;} //nothing to read
 								
 								
-								System.out.println("TCP Client: "+ message);
+								System.out.println("TCP Client "+ cchannel.socket().getLocalAddress().toString().substring(1)+":"+cchannel.socket().getPort() + " sent request: "+ message);
 								
 								// Now, decode this message and act appropriately
 								
@@ -125,10 +125,8 @@ public class SelectServer {
 								//   "exit","quit","friends","befriend","unfriend","list",
 								//   "kick","black","bremove","msg","part"}
 								
-								if(keyword.equals("host")){
+								if(keyword.equals("host")){ //Host room, send reply message to client. DONE.
 									hostRoom(cchannel,socket,messageDecoder.getMsgArray(),user);
-									//sendReplyMessage
-									//TODO host a room and send reply message
 								}
 								
 								
@@ -289,11 +287,19 @@ public class SelectServer {
 		}
 	
 
-	public static void hostRoom(SocketChannel socketChannel,Socket socket,String[] msgArray,User user) {
+	/**
+	 * This method is for creating room and sending reply message to the client.
+	 * @param socketChannel
+	 * @param socket
+	 * @param msgArray
+	 * @param user
+	 * @throws IOException 
+	 */
+	public static void hostRoom(SocketChannel socketChannel,Socket socket,String[] msgArray,User user) throws IOException {
+		
 		//1.Generate random room code
-		byte[] array = new byte[7]; // code is of length 7
-		new Random().nextBytes(array);
-		String roomCode = new String(array, Charset.forName("UTF-8"));
+		RandomCode rndCode = new RandomCode(7);
+		String roomCode = rndCode.getCode();
 		 
 		System.out.println("Room code generated is: " + roomCode);
 		
@@ -307,7 +313,36 @@ public class SelectServer {
 		//4.Update the user - room and isAdmin.
 		user.updateInRoom(newRoom);
 		user.updateIsAdmin(true);
+		
+		//5.Send reply message to the client with the room info - status 1(corresponding to success)
+		ServerMessage msgToClient = new ServerMessage("host",new ArrayList<String>(Arrays.asList("1",roomCode)));
+		if(msgToClient.isGoodToSend() == true) {
+			String sendThisMsg = msgToClient.getMessageToClient();
+			System.out.println("Sending this msg to client: ");
+			System.out.println(sendThisMsg);
+			sendMessage(sendThisMsg,socketChannel);							
+		}else {System.out.println("Count not send message to client because format is incorrect: " + msgToClient.getMessageToClient());}
 	}
+	
+	/**
+	 * Use this ONLY after check syntax, to ensure you're sending properly formatted message
+	 * @param message
+	 * @param socket
+	 * @param socketChannel
+	 * @throws IOException 
+	 */
+	public static void sendMessage(String message,SocketChannel socketChannel) throws IOException {
+		
+		//Put data into the buffer for sending.
+		ByteBuffer inBuffer = ByteBuffer.wrap(message.getBytes());
+
+		//Send data to client
+		int bytesWritten = socketChannel.write(inBuffer); //probably don't need to store this is a variable..
+		inBuffer.rewind();	//Probably don't need to rewind the buffer..
+		
+	}
+	
+
 }
 
 	

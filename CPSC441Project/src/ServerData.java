@@ -1,3 +1,5 @@
+import java.net.Socket;
+import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 
 /**
@@ -5,12 +7,12 @@ import java.util.ArrayList;
  *
  */
 public class ServerData {
-	ArrayList<Room> liveRooms;
+	ArrayList<Room> liveRooms ;
 	ArrayList<User> usersInSystem; //Can be online or offline. Offline users are stored in file somewhere on a server
 	
 	public ServerData() {
-		liveRooms=null;
-		usersInSystem=null;
+		liveRooms=new ArrayList<Room>();
+		usersInSystem=new ArrayList<User>();
 	}
 	
 	/**
@@ -19,10 +21,26 @@ public class ServerData {
 	 * @param user
 	 */
 	public void addUser(User user) {
+		System.out.println("Adding User: " + user.getSocket().getLocalAddress().toString().substring(1) +" : " + user.getSocket().getPort() +" to the system.");
 		usersInSystem.add(user);
 	}
 	
 	public void addRoom(Room room) {
 		liveRooms.add(room);
+	}
+	
+	/**
+	 * User can be uniquely identified by socket
+	 * @param socket
+	 * @return User
+	 */
+	public User getUserCorresponding(Socket socket) {
+		for (User user:usersInSystem) {
+			if(user.getSocket().getLocalAddress().toString().equals(socket.getLocalAddress().toString())
+					&& user.getSocket().getPort() == socket.getPort()) {
+					return user;
+			}
+		}
+		return null;
 	}
 }
