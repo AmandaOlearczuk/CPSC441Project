@@ -15,7 +15,7 @@ public class Thread1 extends Thread{
 	}
 	
 	public void run(){  
-		System.out.println("Thread1 is running - Reading input for chatroom...");
+		//System.out.println("Thread1 is running - Reading input for chatroom...");
 		
 		BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in)); 
     	
@@ -25,7 +25,7 @@ public class Thread1 extends Thread{
 			
 			String userLine = "";
 			try {userLine = inFromUser.readLine();} catch (IOException e) {}
-			System.out.println(TCPClient.currentUsername + ":" + userLine);
+			//System.out.println(TCPClient.currentUsername + ":" + userLine);
 			ArrayList<String> message = new ArrayList<String>(); 
 			message.add(userLine);
 			successSending = TCPClient.sendMessageToServer(outbuffer, "msg", message);

@@ -256,7 +256,7 @@ public class SelectServer {
 		Boolean roomExists = serverData.roomExists(roomCode);
 		
 		if(!roomExists) {
-			boolean isSuccessful = sendMessage("join",new ArrayList<String>(Arrays.asList("0","x","x","x","x","x","x")),socketChannel);							
+			boolean isSuccessful = sendMessage("join",new ArrayList<String>(Arrays.asList("0","x","x","x","x","x")),socketChannel);							
 			if(!isSuccessful) {
 				System.out.println("Count not send message to client because format is incorrect");
 				return;

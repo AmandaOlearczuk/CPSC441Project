@@ -32,13 +32,17 @@ public class Broadcaster {
 		messageArray.add(message);
 
 			for(User user : allGuestsInRoom) {
-				System.out.println("Sending msg to users:"+user.getUsername());
+				//System.out.println("Sending msg to users:"+user.getUsername());
 				boolean isSuccessful = SelectServer.sendMessage("last",messageArray,user.getSocketChannel());	
-				if(!isSuccessful){System.out.println("Couldnt not send message to client because format is incorrect");}
+				if(!isSuccessful){
+					//System.out.println("Couldnt not send message to client because format is incorrect");
+					}
 			}
 			//Plus the admin.
 			boolean isSuccessful = SelectServer.sendMessage("last",messageArray,room.getAdmin().getSocketChannel());	
-			if(!isSuccessful){System.out.println("Couldnt not send message to client because format is incorrect");}
-		
+			if(!isSuccessful){
+				//System.out.println("Couldnt not send message to client because format is incorrect");
+				}
 	}
+		
 }

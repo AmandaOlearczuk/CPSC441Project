@@ -14,13 +14,13 @@ public class Thread2 extends Thread {
 	
 	public void run(){  
 		
-		System.out.println("Thread2 is running - fetching room messages from server...");  
+		//System.out.println("Thread2 is running - fetching room messages from server...");  
 		
 		try {
 			while(true) {
 				String line = TCPClient.fetchMessageFromServer(inbuffer);
 				String[] msgsArray = line.split("\n");
-				System.out.println(msgsArray[0] + " Response from server fetched: ");
+				//System.out.println(msgsArray[0] + " Response from server fetched: ");
 				System.out.println(msgsArray[1]+ ":" + msgsArray[2]);
 			}
 		

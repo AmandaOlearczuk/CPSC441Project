@@ -78,7 +78,7 @@ class TCPClient {
     	while(true) {
 		
     		//1.Promt user to enter the room code
-    		System.out.println("Enter room code");
+    		System.out.println("Enter a room code: ");
     		BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
     		String roomCode = inFromUser.readLine();
     		if (roomCode.trim().equals("")) {System.out.println("Invalide room code, please try again.");continue;}
@@ -91,10 +91,10 @@ class TCPClient {
     		if(!successSending){System.out.println("ERROR: Message you were trying to send to server has invalid syntax.");System.exit(0);}
 
     		//3.Receive message from the server with the room information
-    		System.out.println("Fetching response from server..");
+    		//System.out.println("Fetching response from server..");
     		String line = fetchMessageFromServer(inBuffer);
-    		System.out.println("Response from server fetched: ");
-    		System.out.println(line);
+    		//System.out.println("Response from server fetched: ");
+    		//System.out.println(line);
         
     		//4. Server sends join room confirmation/decline: 
     		//  'join <status> <roomName> <adminName> <users> <messages> <username>'
@@ -142,9 +142,9 @@ class TCPClient {
     	if(!successSending){System.out.println("ERROR: Message you were trying to send to server has invalid syntax.");System.exit(0);}
     		
         //3.Receive message from the server with the room information
-    	System.out.println("Fetching response from server..");
+    	//System.out.println("Fetching response from server..");
     	String line = fetchMessageFromServer(inBuffer);
-    	System.out.println("Response from server fetched: ");
+    	//System.out.println("Response from server fetched: ");
     	String[] msgsArray = line.split("\n");
     	currentUsername = msgsArray[3];
 		System.out.println("Welcome " + msgsArray[3] + "! Room: " + msgsArray[2] + " '"+roomName+"'"+ " Admin: "+ msgsArray[3]);
@@ -198,8 +198,8 @@ class TCPClient {
     	ClientMessage message = new ClientMessage(keyword,theRest);
     	
     	if(message.isGoodToSend()) {
-    		System.out.println("Sending the followng message to server: ");
-    		System.out.println(message.getMessageToServer());
+    		//System.out.println("Sending the followng message to server: ");
+    		//System.out.println(message.getMessageToServer());
     		try{outBuffer.writeBytes(message.getMessageToServer());return true;}catch(Exception e){System.out.println("socket exception");return false;}
     	}
     	
