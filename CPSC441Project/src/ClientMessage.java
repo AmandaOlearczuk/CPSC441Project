@@ -6,23 +6,22 @@ import java.util.ArrayList;
  * This class will format the outgoing messages from client (to the server)
  * This class will NOT send the message. It will only make sure the message is in correct format to send to server
 
-	User wants to log in: “login <username> <password>” 
-	User wants to log out of account: “logout”
-	User wants to sign up: “sign <email> <username> <password>”
-	User wants to join a room: “join <roomcode>”
-	User wants to host a room: “host  <roomname>”
-	User searches for a room: “search <roomname>”
-	User wants to exit the room: “exit” 
-	User wants to exit the application: “quit”
-	Authorized User wants to list their friends: “friends”
-	Authorized User wants to be-friend someone: “befriend <username>”
-	Authorized User wants to unfriend someone: “unfriend <username>”
-	User wants to list people in the room: “list”
-	Admin wants to blacklist someone: “kick <username>”
-	Admin wants to list blacklisted users: “black <username>”
-	Admin wants to unkick someone: “bremove <username>”
-	User wants to send regular message to the room: “msg <content>”
-	User wants to retrieve only the last messages that it doesn’t have: “part lastMessageAsString” (Each client keeps track of last message that was sent to them as string and uses this information to request the missing part of a linked list of messages from the server)
+	User wants to log in: "login <username> <password>"
+	User wants to log out of account: "logout"
+	User wants to sign up: "sign <email> <username> <password>"
+	User wants to join a room: "join <roomcode>"	User wants to host a room: "host  <roomname>"
+	User searches for a room: "search <roomname>"
+	User wants to exit the room: "exit" 
+	User wants to exit the application: "quit"
+	Authorized User wants to list their friends: "friends"
+	Authorized User wants to be-friend someone: "befriend <username>"
+	Authorized User wants to unfriend someone: "unfriend <username>"
+	User wants to list people in the room: "list"
+	Admin wants to blacklist someone: "kick <username>"
+	Admin wants to list blacklisted users: "black <username>"
+	Admin wants to unkick someone: "bremove <username>"
+	User wants to send regular message to the room: "msg <content>"
+	User wants to retrieve only the last messages that it doesn't have: "part lastMessageAsString" (Each client keeps track of last message that was sent to them as string and uses this information to request the missing part of a linked list of messages from the server)
 
  */
 public class ClientMessage {
@@ -78,8 +77,10 @@ public class ClientMessage {
 		if(keyword.equals(keywords[0])){}
 		if(keyword.equals(keywords[1])){}
 		if(keyword.equals(keywords[2])){}
-		if(keyword.equals(keywords[3])){}
-		
+		if(keyword.equals(keywords[3])){
+			if (message.size()==1) {return true;}
+			return false;
+		}
 		//4 - host room
 		if(keyword.equals(keywords[4])){
 			//Check if there's only one field for room name
