@@ -91,7 +91,7 @@ public class SelectServer {
                         SocketChannel cchannel = ((ServerSocketChannel)key.channel()).accept();
                         cchannel.configureBlocking(false);
                         System.out.println("Accepted connection from " + cchannel.socket().getLocalAddress().toString().substring(1)+":"+ cchannel.socket().getPort());
-                       
+                        
                         //Create User class instance for that person, add them to the system
                         User newUser = new User(true,false,false,cchannel.socket(),cchannel); //Basically once client opens their app, they are connected, and by default, anonymous.
                         serverData.addUser(newUser);
@@ -133,7 +133,7 @@ public class SelectServer {
 								}
 								
 								if(keyword.equals("msg")){ 
-									Broadcaster broadcaster = new Broadcaster(user.getInRoom(),msgArray[1],user);
+									Broadcaster broadcaster = new Broadcaster(user.getInRoom(),msgArray[1],user,true);
 									broadcaster.broadcastMsg();
 								}
 								
@@ -142,7 +142,7 @@ public class SelectServer {
 									String roomCode = messageDecoder.getArg1();
 									joinRoom(cchannel, socket, roomCode, user);
 								}
-								
+
 								serverData.printAllDataAsString();
 								
 								continue;
@@ -282,8 +282,10 @@ public class SelectServer {
 				new ArrayList<String>(Arrays.asList("2",room.getRoomName(),room.getAdmin().getUsername()
 						,room.getGuestUsernamesAsString(),"blablabla",user.getUsername())),socketChannel);	
 		
-		//TODO : notify everyone users who just joined a room, by sending msg to one above in exact same way
-
+		//Notify everyone users who just joined a room, by sending msg to one above in exact same way
+		String notifyMsg = user.getUsername() + " joined a room.";
+		Broadcaster broadcaster = new Broadcaster(room,notifyMsg,user,false); //False- user's name won't show in msg.
+		broadcaster.broadcastMsg();
 	}
 	
 	/**

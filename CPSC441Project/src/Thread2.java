@@ -21,7 +21,8 @@ public class Thread2 extends Thread {
 				String line = TCPClient.fetchMessageFromServer(inbuffer);
 				String[] msgsArray = line.split("\n");
 				//System.out.println(msgsArray[0] + " Response from server fetched: ");
-				System.out.println(msgsArray[1]+ ":" + msgsArray[2]);
+				if(line.contains(" joined a room.")) {System.out.println(msgsArray[2]);}
+				else{System.out.println(msgsArray[1]+ ":" + msgsArray[2]);}
 			}
 		
 		} catch (IOException e) {e.printStackTrace();}

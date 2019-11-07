@@ -1,0 +1,7 @@
+Usage:
+java SelectServer <port number>
+java TCPClient <IPv4 address> <port number>
+
+Main Menu options that can be selected:
+> join room
+> host room
