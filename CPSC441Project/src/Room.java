@@ -48,6 +48,11 @@ public class Room {
 		this.guests = guests;
 	}
 
+
+	public void addGuest(User guest) {
+		this.guests.add(guest);
+	}
+
 	public ArrayList<AuthorizedUser> getBlacklist() {
 		return blacklist;
 	}

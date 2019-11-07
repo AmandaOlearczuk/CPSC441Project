@@ -131,10 +131,15 @@ public class SelectServer {
 									hostRoom(cchannel,socket,messageDecoder.getMsgArray(),user);
 								}
 								
+								//serverData.printAllDataAsString();
+								
+								
+								if(keyword.equals("join")){ //join room with room code
+									String roomCode = messageDecoder.getArg1();
+									joinRoom(cchannel, socket, roomCode, user);
+								}
+								
 								serverData.printAllDataAsString();
-								
-								
-								
 								/**
 								//Terminate command Command: terminate
 								if (line.equals("terminate")){
@@ -327,6 +332,20 @@ public class SelectServer {
 			System.out.println(sendThisMsg);
 			sendMessage(sendThisMsg,socketChannel);							
 		}else {System.out.println("Count not send message to client because format is incorrect: " + msgToClient.getMessageToClient());}
+	}
+
+	public static void joinRoom(SocketChannel socketChannel, Socket socket, String roomCode, User user) throws IOException {
+
+		serverData.addUsertoRoom(roomCode, user);
+		
+		ServerMessage msgToClient = new ServerMessage("join", new ArrayList<String>(Arrays.asList("1",roomCode)));
+		if(msgToClient.isGoodToSend() == true) {
+			String sendThisMsg = msgToClient.getMessageToClient();
+			System.out.println("Sending this msg to client: ");
+			System.out.println(sendThisMsg);
+			sendMessage(sendThisMsg,socketChannel);
+		}else {System.out.println("Could not send message to client becasue format is incorrect: " + msgToClient.getMessageToClient());}
+
 	}
 	
 	/**

@@ -1,0 +1,13 @@
+Added a method to the Room class: addGuest which just adds a user to the guest list
+Added a method to the ServerData class: addUsertoRoom which searches through the room list
+	checks each room for the join code, if it find the room then it will add the user 
+	to the guest list of the room, else it will print an error message. Uses a added 
+	boolean variable to check at the end.
+Added a method to ServerMsgDecoder: getArg1 which returns the the first index of the 
+	messageAsArray, just make sure usage is clear that the second word in the 
+	string is the room code.
+Added an if statment to SelectServer: if(keyword.equals("join"){ //Add user to room
+                                                                        String roomCode = messageDecoder.getArg1();
+                                                                        ServerData.addUsertoRoom(user, roomcode);
+                                                                }
+	will add user to room list

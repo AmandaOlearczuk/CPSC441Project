@@ -43,6 +43,20 @@ public class ServerData {
 		}
 		return null;
 	}
+	/*iterates through list of rooms to find room with room code and adds user if it exists*/
+	public void addUsertoRoom(String roomCode, User user) {
+		boolean added = false;
+		for(Room room:liveRooms){
+			if(room.getRoomCode().equals(roomCode)){
+				room.addGuest(user);   //TODO: add addGuest() method to room
+				added = true;
+				user.updateInRoom(room);
+			}
+		}
+		if(!added) System.out.println("Sorry could not find room");
+
+
+	}
 	
 	public void printAllDataAsString() {
 		System.out.println(">>> Printing data from ServerData.java class .. <<<");

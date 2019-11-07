@@ -4,25 +4,25 @@ import java.util.*;
 /**
  * This class is used to structure a message that will be then sent to the client.
  *  The server will reply to all commands with the command name followed by integer status codes, 
- *  as well as any other relevant data that the user has requested. The server response message formats mirror the clients’, 
+ *  as well as any other relevant data that the user has requested. The server response message formats mirror the clients', 
  *  and are as follows:
 
-	Server sends login confirmation/decline: “login <status>”
-	Server sends logout confirmation status: “logout <status>”
-	Server sends sign up confirmation/decline: “sign <status>”
-	Server sends join room confirmation/decline: “join <status> <roomName> <adminName> <users> <messages>”
-	Server sends host room information: “host <status> <roomcode>”
-	Server sends found rooms: “search <status> <roomRecords>”
-	Server sends exit room confirmation: “exit <status>”
-	Server sends user’s friends list over: “friends <status> <friendlist>”
-	Server sends befriend confirmation/decline: “befriend <status>”
-	Server sends unfriend confirmation/decline: “unfriend <status>”
-	Server sends a list of people in the room: “list <status> <users>”
-	Server sends confirmation/decline of kick: “kick <status>”
-	Server sends a list of blacklisted users in a room: ”black <status> <users>”
-	Server sends confirmation/decline of un-kicking someone: “bremove <status>”
-	Server sends updated message list: “msg <allMessages>”
-	Server sends a part of linked list of msgs to the client: “part  <status> <partOfLinkedListOfMsgs>”
+	Server sends login confirmation/decline: "login <status>"
+	Server sends logout confirmation status: "logout <status>"
+	Server sends sign up confirmation/decline: "sign <status>"
+	Server sends join room confirmation/decline: "join <status> <roomName> <adminName> <users> <messages>"
+	Server sends host room information: "host <status> <roomcode>"
+	Server sends found rooms: "search <status> <roomRecords>"
+	Server sends exit room confirmation: "exit <status>"
+	Server sends user's friends list over: "friends <status> <friendlist>"
+	Server sends befriend confirmation/decline: "befriend <status>"
+	Server sends unfriend confirmation/decline: "unfriend <status>"
+	Server sends a list of people in the room: "list <status> <users>"
+	Server sends confirmation/decline of kick: "kick <status>"
+	Server sends a list of blacklisted users in a room: "black <status> <users>"
+	Server sends confirmation/decline of un-kicking someone: "bremove <status>"
+	Server sends updated message list: "msg <allMessages>"
+	Server sends a part of linked list of msgs to the client: "part  <status> <partOfLinkedListOfMsgs>"
 	
 	
  */
@@ -105,7 +105,10 @@ public class ServerMessage {
 		if(keyword.equals(keywords[0])){}
 		if(keyword.equals(keywords[1])){}
 		if(keyword.equals(keywords[2])){}
-		if(keyword.equals(keywords[3])){}
+		if(keyword.equals(keywords[3])){
+			System.out.println("yes good good");
+			return true;
+		}
 		
 		//4 - host room
 		if(keyword.equals(keywords[4])){

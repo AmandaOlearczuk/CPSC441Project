@@ -55,7 +55,7 @@ class TCPClient {
         	//4.See what option did user select and execute appropriate action
             if(syntaxChecker.isMainMenuLogIn(line)) {}
         	if(syntaxChecker.isMainMenuSignUp(line)) {}
-        	if(syntaxChecker.isMainMenuJoinRoom(line)) {}
+        	if(syntaxChecker.isMainMenuJoinRoom(line)) { joinRoom(outBuffer, inBuffer);}
         	if(syntaxChecker.isMainMenuHostRoom(line)) { ArrayList<String> roomInfo = hostRoom(outBuffer,inBuffer);}
         	if(syntaxChecker.isMainMenuSearchForRoom(line)) {}
         	if(syntaxChecker.isMainMenuExit(line)) {System.out.println("Goodbye!");clientSocket.close();System.exit(0);}
@@ -122,6 +122,37 @@ class TCPClient {
      * This function is responsible for sending message to the server that client wants to host a room.
      * @return ArrayList<String> - response message from the server.
      */
+
+    public static void joinRoom(DataOutputStream outbuffer, BufferedReader inBuffer) throws IOException {
+	while(true) {
+	//1.Promt user to enter the room code
+		System.out.println("Enter room code");
+		BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
+		String roomCode = inFromUser.readLine();
+		if (roomCode.trim().equals("")) {System.out.println("Invalide rood code, please try again.");continue;}
+		ArrayList<String> msgsInArray = new ArrayList<String>();
+		msgsInArray.add(roomCode);
+	//2.Send join information to the server 'join <joincode>'
+		ClientMessage message = new ClientMessage("join", msgsInArray);
+		System.out.println("clientmessage maybe");
+		if(message.isGoodToSend()) {
+			System.out.println("Sending the following message to server: ");
+			System.out.println(message.getMessageToServer());
+			try{outbuffer.writeBytes(message.getMessageToServer());}catch(Exception e){System.out.println("socket exception");}
+		}
+
+		System.out.println("Fetching response from server..");
+        	String line = fetchMessageFromServer(inBuffer);
+        	System.out.println("Response from server fetched: ");
+                System.out.println(line);
+        	break;
+
+        }
+
+
+}
+
+
     public static ArrayList<String> hostRoom(DataOutputStream outbuffer,BufferedReader inBuffer) throws IOException {
     	
     	while(true) { //loop just in case room name was entered as empty.
@@ -134,7 +165,7 @@ class TCPClient {
     	ArrayList<String> msgsInArray = new ArrayList<String>();
     	msgsInArray.add(roomName);
     	
-    	//2.Send room information to the server “host  <roomname>”
+    	//2.Send room information to the server 'host  <roomname>'
     	ClientMessage message = new ClientMessage("host",msgsInArray);
     	if(message.isGoodToSend()) {
     		System.out.println("Sending the followng message to server: ");

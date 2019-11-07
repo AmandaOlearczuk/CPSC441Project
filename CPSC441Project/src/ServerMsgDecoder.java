@@ -22,6 +22,10 @@ public class ServerMsgDecoder {
 		return messageAsArray[0];
 	}
 	
+	public String getArg1() {
+		return messageAsArray[1];
+	}
+	
 	public String[] getMsgArray() {
 		return messageAsArray;
 	}
