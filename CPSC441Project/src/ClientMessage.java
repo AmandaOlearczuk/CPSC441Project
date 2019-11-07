@@ -78,6 +78,8 @@ public class ClientMessage {
 		if(keyword.equals(keywords[1])){}
 		if(keyword.equals(keywords[2])){}
 		if(keyword.equals(keywords[3])){
+			//3- join room
+			//Check if there's only one field for room name
 			if (message.size()==1) {return true;}
 			return false;
 		}
@@ -97,7 +99,14 @@ public class ClientMessage {
 		if(keyword.equals(keywords[12])){}
 		if(keyword.equals(keywords[13])){}
 		if(keyword.equals(keywords[14])){}
-		if(keyword.equals(keywords[15])){}
+		if(keyword.equals(keywords[15])){
+			if(keyword.equals(keywords[15])){
+				//15 - send msg to chat room
+				//Check if there's only one field for chat message
+				if (message.size()==1) {return true;}
+				return false;
+			}
+		}
 		if(keyword.equals(keywords[16])){}
 		return false;
 	}
@@ -106,19 +115,6 @@ public class ClientMessage {
 		return isGoodToSend;
 	}
 	
-	/** The following method takes a string and appends it's own capacity in front plus a "\n" symbol for separation.
-	* For example: Input: "HelloThere" Output: "10\nHelloThere"
-	* What's it used for? For sending messages to the server, so the server knows the size of message to read. 
-	* Returns: String
-	* 
-	* MIGHT NOT BE NEEDED AT ALL
-	*
-	public String includeCapacity(String s){
-		String str = "\n" + s;
-		ByteBuffer bb = ByteBuffer.wrap(str.getBytes());
-		str = Integer.toString(bb.capacity()) + str; //Format : "SIZEOFMSG\nFile1\nFile2\nFile3...."
-		return str;
-	}*/
 	
 	public String getMessageToServer() {
 		return msgToServer;

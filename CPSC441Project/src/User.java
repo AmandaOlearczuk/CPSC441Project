@@ -3,6 +3,7 @@ import java.net.Socket;
 import java.nio.channels.SocketChannel;
 
 public class User {
+	private String username;
 	private boolean isOnline;
 	private boolean isAdmin;
 	private boolean isGuest;
@@ -89,6 +90,14 @@ public class User {
 
 	public void setInRoom(Room inRoom) {
 		this.inRoom = inRoom;
+	}
+	
+	public void setUsername(String uname) {
+		this.username = uname;
+	}
+
+	public String getUsername( ) {
+		return this.username;
 	}
 	
 	

@@ -122,6 +122,7 @@ public class SelectServer {
 								
 								ServerMsgDecoder messageDecoder = new ServerMsgDecoder(message);
 								String keyword = messageDecoder.getKeyword();
+								String[] msgArray = messageDecoder.getMsgArray();
 								
 								//Keyword is one of: {"login","logout","sign","join","host","search",
 								//   "exit","quit","friends","befriend","unfriend","list",
@@ -131,7 +132,10 @@ public class SelectServer {
 									hostRoom(cchannel,socket,messageDecoder.getMsgArray(),user);
 								}
 								
-								//serverData.printAllDataAsString();
+								if(keyword.equals("msg")){ 
+									Broadcaster broadcaster = new Broadcaster(user.getInRoom(),msgArray[1],user);
+									broadcaster.broadcastMsg();
+								}
 								
 								
 								if(keyword.equals("join")){ //join room with room code
@@ -140,100 +144,11 @@ public class SelectServer {
 								}
 								
 								serverData.printAllDataAsString();
-								/**
-								//Terminate command Command: terminate
-								if (line.equals("terminate")){
-									terminated = true;
-									System.exit(0);
-								}
 								
-								//List files in directory Command: list
-								else if(line.equals("list")){
-									
-									//Get files in current directory as string + the string's size in front
-									String filesStr = getFilesInCurrentDir();
-									String ready_filesStr = addInformation(filesStr,false,cchannel.socket().getPort());
-									
-									//Put data into the buffer for sending.
-									inBuffer = ByteBuffer.wrap(ready_filesStr.getBytes());
-									
-									//Send data to client
-									int bytesWritten = cchannel.write(inBuffer);
-									inBuffer.rewind();
-									
-									continue;
-									
-								}
-	
-								//Send over a file Command: get <filename>
-								else if(line.length() >=4){
-									if(line.charAt(0) == 'g' && line.charAt(1) =='e' && line.charAt(2) == 't' && line.charAt(3) == ' '){
-										String filename = line.substring(4,line.length());
-										System.out.println("Open file: " + filename);
-										
-										try{
-											String content = new String(Files.readAllBytes(Paths.get(filename)), "us-ascii");
-											String msg = content;
-											String ready_msg = addInformation(content,true,cchannel.socket().getPort());
-											
-											//Put data into the buffer for sending.
-											inBuffer = ByteBuffer.wrap(ready_msg.getBytes());
-											//Send data to client
-											int bytesWritten = cchannel.write(inBuffer);
-											inBuffer.rewind();	
-											
-											continue;
-																		
-										}catch(Exception e){
-											System.out.println("open() failed");
-											
-											String msg = "Server: Error in opening file " + filename;
-											String ready_msg = addInformation(msg,false,cchannel.socket().getPort());
-											
-											//Put data into the buffer for sending.
-											inBuffer = ByteBuffer.wrap(ready_msg.getBytes());
-											//Send data to client
-											int bytesWritten = cchannel.write(inBuffer);
-											inBuffer.rewind();	
-											
-											continue;
-										}	
-									} else {
-										//Put message into bytebuffer
-										String unknown_str = "Server: Unknown command: " + line ; //line already includes "\n"
-										String ready_unknown_str = addInformation(unknown_str,false,cchannel.socket().getPort());
-										
-										//Put data into the buffer for sending.
-										inBuffer = ByteBuffer.wrap(ready_unknown_str.getBytes());
-								
-										//Send data to client
-										int bytesWritten = cchannel.write(inBuffer);
-										inBuffer.rewind();
-										continue;										
-									}
-					
-								}
-								
-								/// !!! THIS SECTION OF CODE IS ONLY REACHED IF COMMAND ISN'T RECOGNIZED !!! " ///
-								//Put message into bytebuffer
-							
-								String unknown_str = "Server: Unknown command: " + line ; //line already includes "\n"
-								String ready_unknown_str = addInformation(unknown_str,false,cchannel.socket().getPort());
-								
-								//Put data into the buffer for sending.
-								inBuffer = ByteBuffer.wrap(ready_unknown_str.getBytes());
-								
-								//Send data to client
-								int bytesWritten = cchannel.write(inBuffer);
-								inBuffer.rewind();
-								*/
 								continue;
-							}
-							
-                    }		
-                   
-                }  
-                
+							}	
+                    }		             
+                }      
             }
 				
         // close all connections (terminated = true)
@@ -307,6 +222,8 @@ public class SelectServer {
 	 */
 	public static void hostRoom(SocketChannel socketChannel,Socket socket,String[] msgArray,User user) throws IOException {
 		
+		user.setUsername("anon0*"); //For now, admin is anonymous
+		
 		//1.Generate random room code
 		RandomCode rndCode = new RandomCode(7);
 		String roomCode = rndCode.getCode();
@@ -325,26 +242,47 @@ public class SelectServer {
 		user.updateIsAdmin(true);
 		
 		//5.Send reply message to the client with the room info - status 1(corresponding to success)
-		ServerMessage msgToClient = new ServerMessage("host",new ArrayList<String>(Arrays.asList("1",roomCode)));
-		if(msgToClient.isGoodToSend() == true) {
-			String sendThisMsg = msgToClient.getMessageToClient();
-			System.out.println("Sending this msg to client: ");
-			System.out.println(sendThisMsg);
-			sendMessage(sendThisMsg,socketChannel);							
-		}else {System.out.println("Count not send message to client because format is incorrect: " + msgToClient.getMessageToClient());}
+		Boolean isSuccessful = sendMessage("host",new ArrayList<String>(Arrays.asList("1",roomCode,user.getUsername())),socketChannel);							
+		if(!isSuccessful) {
+			System.out.println("Count not send message to client because format is incorrect");
+			return;
+		}
 	}
 
 	public static void joinRoom(SocketChannel socketChannel, Socket socket, String roomCode, User user) throws IOException {
 
-		serverData.addUsertoRoom(roomCode, user);
+		//1.Check if a room with that code exists
+		// If it doesnt, sent error msg to client.
+		Boolean roomExists = serverData.roomExists(roomCode);
 		
-		ServerMessage msgToClient = new ServerMessage("join", new ArrayList<String>(Arrays.asList("1",roomCode)));
-		if(msgToClient.isGoodToSend() == true) {
-			String sendThisMsg = msgToClient.getMessageToClient();
-			System.out.println("Sending this msg to client: ");
-			System.out.println(sendThisMsg);
-			sendMessage(sendThisMsg,socketChannel);
-		}else {System.out.println("Could not send message to client becasue format is incorrect: " + msgToClient.getMessageToClient());}
+		if(!roomExists) {
+			boolean isSuccessful = sendMessage("join",new ArrayList<String>(Arrays.asList("0","x","x","x","x","x","x")),socketChannel);							
+			if(!isSuccessful) {
+				System.out.println("Count not send message to client because format is incorrect");
+				return;
+			}		
+			
+			return;}
+		
+		//By this point, we know the room exists.
+		
+		Room room = serverData.getRoom(roomCode);
+		
+		//boolean isUserBannedFromRoom = room.isBanned(user); TODO check once we have authorized users.
+		
+		user.setUsername(room.generateAnonUsername());
+		
+		room.addGuest(user);
+		
+		user.updateInRoom(room);
+		user.updateIsAdmin(false);
+		
+		//“join <status> <roomName> <adminName> <users> <messages> <givenUsername>”
+		boolean isSuccessful = sendMessage("join",
+				new ArrayList<String>(Arrays.asList("2",room.getRoomName(),room.getAdmin().getUsername()
+						,room.getGuestUsernamesAsString(),"blablabla",user.getUsername())),socketChannel);	
+		
+		//TODO : notify everyone users who just joined a room, by sending msg to one above in exact same way
 
 	}
 	
@@ -355,18 +293,24 @@ public class SelectServer {
 	 * @param socketChannel
 	 * @throws IOException 
 	 */
-	public static void sendMessage(String message,SocketChannel socketChannel) throws IOException {
+	public static boolean sendMessage(String keyword, ArrayList<String> rest,SocketChannel socketChannel) throws IOException {
 		
-		//Put data into the buffer for sending.
-		ByteBuffer inBuffer = ByteBuffer.wrap(message.getBytes());
-
-		//Send data to client
-		int bytesWritten = socketChannel.write(inBuffer); //probably don't need to store this is a variable..
-		inBuffer.rewind();	//Probably don't need to rewind the buffer..
+		ServerMessage msgToClient = new ServerMessage(keyword,rest);
+		if(msgToClient.isGoodToSend() == true) {
+			String sendThisMsg = msgToClient.getMessageToClient();
+			
+			System.out.println("Sending this msg to client: ");
+			System.out.println(sendThisMsg);
+			
+			ByteBuffer inBuffer = ByteBuffer.wrap(sendThisMsg.getBytes());
+			int bytesWritten = socketChannel.write(inBuffer); //probably don't need to store this is a variable..
+			inBuffer.rewind();	//Probably don't need to rewind the buffer..
+			return true;
+		}
 		
+		
+		return false;
 	}
-	
-
 }
 
 	

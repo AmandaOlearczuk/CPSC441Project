@@ -43,19 +43,33 @@ public class ServerData {
 		}
 		return null;
 	}
-	/*iterates through list of rooms to find room with room code and adds user if it exists*/
-	public void addUsertoRoom(String roomCode, User user) {
-		boolean added = false;
-		for(Room room:liveRooms){
-			if(room.getRoomCode().equals(roomCode)){
-				room.addGuest(user);   //TODO: add addGuest() method to room
-				added = true;
-				user.updateInRoom(room);
+	
+	
+	/**
+	 * Checks if room with particular code exists
+	 * @param roomCode
+	 * @return boolean
+	 */
+	public boolean roomExists(String roomCode) {
+		for(Room r : liveRooms) {
+			if(r.getRoomCode().equals(roomCode)) {
+				return true;
 			}
 		}
-		if(!added) System.out.println("Sorry could not find room");
-
-
+		return false;
+	}
+	
+	/**
+	 * Returns room with associated roomcode
+	 * DOES NOT CHECK IF ROOM EXISTS. Use roomExists() before using this method.
+	 * @param roomcode
+	 * @return Room
+	 */
+	public Room getRoom(String roomcode) {
+		for(Room r:liveRooms) {
+			if(r.getRoomCode().equals(roomcode)) {return r;}
+		}
+		return null;
 	}
 	
 	public void printAllDataAsString() {

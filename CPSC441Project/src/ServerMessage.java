@@ -29,7 +29,7 @@ import java.util.*;
 
 public class ServerMessage {
 	private String[] keywords = new String[] {"login","logout","sign","join","host","search","exit","quit","friends","befriend","unfriend","list",
-			"kick","black","bremove","msg","part"};
+			"kick","black","bremove","msg","part","last"};
 	private Map<String, String[] > statusCodes = new HashMap<String, String[]>();	
 	
 	private String keyword = "";
@@ -68,7 +68,9 @@ public class ServerMessage {
 			msgToClient = keywd + "\n" + listString + "\n";
 			msgToClient = includeCapacity(msgToClient); //Message is pre-fixed with it's size.
 			
-		} else {isGoodToSend=false;}
+		} else {
+			System.out.println("Syntax is INCORRECT of the message you're trying to send from server to client..");
+			isGoodToSend=false;}
 	}
 	
 	/**
@@ -106,15 +108,21 @@ public class ServerMessage {
 		if(keyword.equals(keywords[1])){}
 		if(keyword.equals(keywords[2])){}
 		if(keyword.equals(keywords[3])){
-			System.out.println("yes good good");
-			return true;
+			//3.Join room
+			System.out.println("You selected a join room keyword in message to send..");
+			//Check if the number of fields in message (not including keyword) is appropriate
+			if (rawMessage.size()==6) {
+				System.out.println("Number of fields is correct in a message..");
+				//Here, we already know status is correct and message has 3 fields. All good!
+				return true;
+			}System.out.println("Number of fields is INCORRECT in a message..");return false; //here, we know msg size is not 2 - wrong # of fields - syntax incorrect
 		}
 		
 		//4 - host room
 		if(keyword.equals(keywords[4])){
 			System.out.println("You selected a host room keyword in message to send..");
 			//Check if the number of fields in message (not including keyword) is appropriate
-			if (rawMessage.size()==2) {
+			if (rawMessage.size()==3) {
 				System.out.println("Number of fields is correct in a message..");
 				//Here, we already know status is correct and message has 2 fields. All good!
 				return true;
@@ -133,6 +141,16 @@ public class ServerMessage {
 		if(keyword.equals(keywords[14])){}
 		if(keyword.equals(keywords[15])){}
 		if(keyword.equals(keywords[16])){}
+		if(keyword.equals(keywords[17])){
+			//17 - 'last' message
+			System.out.println("You selected a 'last' keyword in message to send..");
+			if (rawMessage.size()==2) {
+				System.out.println("Number of fields is correct in a message..");
+				//Here, we already know status is correct and message has 2 fields. All good!
+				return true;
+			}
+			System.out.println("Number of fields is INCORRECT in a message..");return false; //here, we know msg size is not 2 - wrong # of fields - syntax incorrect
+		}
 		return false;
 	}
 

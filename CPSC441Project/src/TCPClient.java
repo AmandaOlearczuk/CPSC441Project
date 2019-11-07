@@ -13,6 +13,8 @@ import java.net.*;
 import java.util.ArrayList;
 
 class TCPClient { 
+	
+	public static String currentUsername;
 
     public static void main(String args[]) throws Exception 
     { 
@@ -56,104 +58,73 @@ class TCPClient {
             if(syntaxChecker.isMainMenuLogIn(line)) {}
         	if(syntaxChecker.isMainMenuSignUp(line)) {}
         	if(syntaxChecker.isMainMenuJoinRoom(line)) { joinRoom(outBuffer, inBuffer);}
-        	if(syntaxChecker.isMainMenuHostRoom(line)) { ArrayList<String> roomInfo = hostRoom(outBuffer,inBuffer);}
+        	if(syntaxChecker.isMainMenuHostRoom(line)) { hostRoom(outBuffer,inBuffer);}
         	if(syntaxChecker.isMainMenuSearchForRoom(line)) {}
         	if(syntaxChecker.isMainMenuExit(line)) {System.out.println("Goodbye!");clientSocket.close();System.exit(0);}
         	
         }
-        
-        /* 
-		//Get user input and send to the server
-		//FORMAT OF MESSSAGES BEING RECEIVED: First line is the size of the message following. For example: "453\nFile1\nFile2\nhello.java\n"
-		
-        System.out.print("Please enter a message to be sent to the server ('logout' to terminate): ");
-        line = inFromUser.readLine(); 
-        while (!line.equals("logout") )
-        {
-			try{
-                // Send to the server
-				outBuffer.writeBytes(line + '\n'); 
-            
-				String incomingPort = inBuffer.readLine(); //First line reads a port #
-				String isFile = inBuffer.readLine(); //Second line reads if the incoming msg is to be saved to file.
-				String buff_capacity = inBuffer.readLine(); //Third line reads capacity (size) of the actual content in following message
-				
-				if(isFile.equals("1")){
-					String filename = line.substring(4,line.length());
-					
-					//Save that content to a file
-					PrintWriter out = new PrintWriter(filename);		
-					
-					int msg_length = Integer.parseInt(buff_capacity);
-	
-					char[] msgReceived = new char[msg_length];
-					inBuffer.read(msgReceived,0,msg_length);
-					line = new String(msgReceived);
-					line = line.substring(0,line.length()-1); //For some reason line always includes 1 extra whitespace at the end
-					
-					out.println(line);
-					out.close();
-					
-					String msg = "File saved in " + filename + "-" + incomingPort + " (" + (new File(filename).length()) + " bytes)";
-					System.out.println(msg);
-					
-				}else{
-				
-					int msg_length = Integer.parseInt(buff_capacity);
-	
-					char[] msgReceived = new char[msg_length];
-					inBuffer.read(msgReceived,0,msg_length);
-					line = new String(msgReceived).trim();
-					System.out.println(line);
-				}
-				
-			}catch(SocketException e){}
-			
-				System.out.print("Please enter a message to be sent to the server ('logout' to terminate): ");
-				line = inFromUser.readLine(); 
-        }
-
-
-        // Close the socket
-        clientSocket.close();    */       
+          
     } 
     
     /**
-     * This function is responsible for sending message to the server that client wants to host a room.
-     * @return ArrayList<String> - response message from the server.
+     * This function is responsible for sending message to the server that client wants to join a room.
+     * 
      */
 
-    public static void joinRoom(DataOutputStream outbuffer, BufferedReader inBuffer) throws IOException {
-	while(true) {
-	//1.Promt user to enter the room code
-		System.out.println("Enter room code");
-		BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
-		String roomCode = inFromUser.readLine();
-		if (roomCode.trim().equals("")) {System.out.println("Invalide rood code, please try again.");continue;}
-		ArrayList<String> msgsInArray = new ArrayList<String>();
-		msgsInArray.add(roomCode);
-	//2.Send join information to the server 'join <joincode>'
-		ClientMessage message = new ClientMessage("join", msgsInArray);
-		System.out.println("clientmessage maybe");
-		if(message.isGoodToSend()) {
-			System.out.println("Sending the following message to server: ");
-			System.out.println(message.getMessageToServer());
-			try{outbuffer.writeBytes(message.getMessageToServer());}catch(Exception e){System.out.println("socket exception");}
-		}
+    public static void joinRoom(DataOutputStream outbuffer, BufferedReader inBuffer) throws IOException, InterruptedException {
+	
+    	Boolean successSending;
+    	
+    	while(true) {
+		
+    		//1.Promt user to enter the room code
+    		System.out.println("Enter room code");
+    		BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
+    		String roomCode = inFromUser.readLine();
+    		if (roomCode.trim().equals("")) {System.out.println("Invalide room code, please try again.");continue;}
+		
+    		ArrayList<String> msgsInArray = new ArrayList<String>();
+    		msgsInArray.add(roomCode);
+		
+    		//2.Send join information to the server 'join <joincode>'
+    		successSending = sendMessageToServer(outbuffer,"join",msgsInArray);
+    		if(!successSending){System.out.println("ERROR: Message you were trying to send to server has invalid syntax.");System.exit(0);}
 
-		System.out.println("Fetching response from server..");
-        	String line = fetchMessageFromServer(inBuffer);
-        	System.out.println("Response from server fetched: ");
-                System.out.println(line);
-        	break;
-
+    		//3.Receive message from the server with the room information
+    		System.out.println("Fetching response from server..");
+    		String line = fetchMessageFromServer(inBuffer);
+    		System.out.println("Response from server fetched: ");
+    		System.out.println(line);
+        
+    		//4. Server sends join room confirmation/decline: 
+    		//  'join <status> <roomName> <adminName> <users> <messages> <username>'
+    		// Note: 2 is the error status code for join.
+    		String errorStatus = "2";
+    		String[] msgsArray = line.split("\n");
+    		if(!msgsArray[1].equals(errorStatus)) {System.out.println("Couldn't connect to that room.");break;} 
+    		currentUsername = msgsArray[6];
+    		System.out.println("Welcome " + msgsArray[6] + "! Room: " + roomCode + " '"+msgsArray[2]+"'"+ " Admin: "+ msgsArray[3]);
+    		System.out.println("Currently in room: "+ msgsArray[3] + msgsArray[4]);
+    		System.out.println("Type '/o' for options.");
+		
+    		//5. Start up threads for reading user upput & fetching msgs from a server.
+    		Thread1 t1= new Thread1(outbuffer); //This thread is asking for user input to send message to the chat & server
+    		Thread2 t2= new Thread2(inBuffer); //This thread is constantly fetching new messages to the chatroom
+		
+    		t1.start();
+    		t2.start();
+		
+    		t1.join();
+    		t2.join();
+		
+    		break;
         }
-
-
 }
 
 
-    public static ArrayList<String> hostRoom(DataOutputStream outbuffer,BufferedReader inBuffer) throws IOException {
+    public static void hostRoom(DataOutputStream outbuffer,BufferedReader inBuffer) throws IOException, InterruptedException {
+    	
+    	Boolean successSending;
     	
     	while(true) { //loop just in case room name was entered as empty.
     		
@@ -166,24 +137,36 @@ class TCPClient {
     	msgsInArray.add(roomName);
     	
     	//2.Send room information to the server 'host  <roomname>'
-    	ClientMessage message = new ClientMessage("host",msgsInArray);
-    	if(message.isGoodToSend()) {
-    		System.out.println("Sending the followng message to server: ");
-    		System.out.println(message.getMessageToServer());
-    		try{outbuffer.writeBytes(message.getMessageToServer());}catch(Exception e){System.out.println("socket exception");}
-    	}
+    	successSending = sendMessageToServer(outbuffer,"host",msgsInArray);
+    	
+    	if(!successSending){System.out.println("ERROR: Message you were trying to send to server has invalid syntax.");System.exit(0);}
     		
         //3.Receive message from the server with the room information
     	System.out.println("Fetching response from server..");
     	String line = fetchMessageFromServer(inBuffer);
     	System.out.println("Response from server fetched: ");
-		System.out.println(line);
+    	String[] msgsArray = line.split("\n");
+    	currentUsername = msgsArray[3];
+		System.out.println("Welcome " + msgsArray[3] + "! Room: " + msgsArray[2] + " '"+roomName+"'"+ " Admin: "+ msgsArray[3]);
+		System.out.println("Type '/o' for options.");
+		
+		//3. Continuously ask the user for input, as well as fetch incoming messages.
+		//   We need 2 threads.
+		// For now, just implement the chat functionality and NO menu options - '/o' command doesn't work
+		
+		Thread1 t1= new Thread1(outbuffer);
+		Thread2 t2= new Thread2(inBuffer);
+		
+		t1.start();
+		t2.start();
+		
+		t1.join();
+		t2.join();
+		
+		
     	break;
     	
     	}
-    	
-    	ArrayList<String> al = new ArrayList<String>();
-    	return al;
     }
     
     /**
@@ -202,5 +185,24 @@ class TCPClient {
 		String line = new String(msgReceived).trim();
 		
 		return line;
+    }
+    
+    /**
+     * This is a method to send message to a server.
+     * @param outBuffer
+     * @param keyword
+     * @param theRest
+     * @return boolean - if sending was successful
+     */
+    public static boolean sendMessageToServer(DataOutputStream outBuffer,String keyword,ArrayList<String> theRest) {
+    	ClientMessage message = new ClientMessage(keyword,theRest);
+    	
+    	if(message.isGoodToSend()) {
+    		System.out.println("Sending the followng message to server: ");
+    		System.out.println(message.getMessageToServer());
+    		try{outBuffer.writeBytes(message.getMessageToServer());return true;}catch(Exception e){System.out.println("socket exception");return false;}
+    	}
+    	
+		return false;
     }
 } 
