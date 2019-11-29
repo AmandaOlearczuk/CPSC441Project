@@ -89,7 +89,10 @@ public class ClientMessage {
 			if (message.size()==1 || message.size()==2) { return true;}
 			return false;
 		}
-		if(keyword.equals(keywords[5])){}
+		if(keyword.equals(keywords[5])){
+			//message not important for search room, always return true;
+			return true;
+		}
 		if(keyword.equals(keywords[6])){}
 		if(keyword.equals(keywords[7])){}
 		if(keyword.equals(keywords[8])){}

@@ -71,6 +71,15 @@ public class ServerData {
 		}
 		return null;
 	}
+
+	public ArrayList<String> getAllRooms() {
+		ArrayList<String> roomList = new ArrayList<String>();
+		roomList.add("2");
+		for(Room r:liveRooms){
+			roomList.add("Room name: " + r.getRoomName() + " Join code: " + r.getRoomCode());
+		}
+		return roomList;
+	}
 	
 	public void printAllDataAsString() {
 		System.out.println(">>> Printing data from ServerData.java class .. <<<");

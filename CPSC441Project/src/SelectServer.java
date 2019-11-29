@@ -143,6 +143,11 @@ public class SelectServer {
 									joinRoom(cchannel, socket, roomCode, user);
 								}
 
+								if(keyword.equals("search")){ //display list of rooms
+									System.out.println("Server recognized search keywork");
+									searchroom(cchannel, socket, user);
+								}
+
 								serverData.printAllDataAsString();
 								
 								continue;
@@ -210,7 +215,25 @@ public class SelectServer {
 		String message = charBuffer.toString().trim();
 		return message;
 		}
-	
+	/**
+	* This method is for displaying list of rooms
+	* @param socketChannel
+	* @param socket
+	* @param msgArray
+	* @param user
+	**/
+
+	public static void searchroom(SocketChannel socketChannel, Socket socket, User user) throws IOException {
+
+		ArrayList<String> liveRooms = serverData.getAllRooms();
+		
+		Boolean isSuccessful = sendMessage("search", liveRooms, socketChannel);
+
+		if(!isSuccessful) {
+			System.out.println("Could not search rooms to client beacsue format is incorrect");
+		}
+
+	}
 
 	/**
 	 * This method is for creating room and sending reply message to the client.

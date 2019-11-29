@@ -10,7 +10,7 @@
 
 import java.io.*; 
 import java.net.*;
-import java.util.ArrayList;
+import java.util.*;
 
 class TCPClient { 
 	
@@ -59,7 +59,7 @@ class TCPClient {
         	if(syntaxChecker.isMainMenuSignUp(line)) {}
         	if(syntaxChecker.isMainMenuJoinRoom(line)) { joinRoom(outBuffer, inBuffer);}
         	if(syntaxChecker.isMainMenuHostRoom(line)) { hostRoom(outBuffer,inBuffer);}
-        	if(syntaxChecker.isMainMenuSearchForRoom(line)) {}
+        	if(syntaxChecker.isMainMenuSearchForRoom(line)) { searchRoom(outBuffer, inBuffer); }
         	if(syntaxChecker.isMainMenuExit(line)) {System.out.println("Goodbye!");clientSocket.close();System.exit(0);}
         	
         }
@@ -70,6 +70,24 @@ class TCPClient {
      * This function is responsible for sending message to the server that client wants to join a room.
      * 
      */
+
+    public static void searchRoom(DataOutputStream outbuffer, BufferedReader inBuffer) throws IOException, InterruptedException {
+	
+	Boolean successSending;
+
+	System.out.println("Fetching current rooms...");
+	ArrayList<String> msgArray = new ArrayList<String>();
+	msgArray.add("search");
+	successSending = sendMessageToServer(outbuffer,"search", msgArray);
+	if(!successSending){System.out.println("ERROR: not able to send message to fetch list of rooms");System.exit(0);}
+	String line = fetchMessageFromServer(inBuffer);
+	ArrayList<String> recArray = new ArrayList<String>(Arrays.asList(line.split("\n")));
+	recArray.remove(1);
+	for(String s: recArray){
+		System.out.println(s);
+	}
+
+    }
 
     public static void joinRoom(DataOutputStream outbuffer, BufferedReader inBuffer) throws IOException, InterruptedException {
 	

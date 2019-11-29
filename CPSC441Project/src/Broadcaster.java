@@ -22,7 +22,8 @@ public class Broadcaster {
 		message=msg;
 		allGuestsInRoom = room.getGuests(); //All guests
 		includeSenderName = senderInclude;
-		r.addMessage(sender + ": " + msg);
+		
+		r.addMessage(sender.getUsername() + ": " + msg);
 	}
 	
 	/**

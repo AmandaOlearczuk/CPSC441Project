@@ -44,7 +44,7 @@ public class ServerMessage {
 		statusCodes.put("sign", new String[] {"0","1","2","3"});
 		statusCodes.put("join", new String[] {"0","1","2"});
 		statusCodes.put("host", new String[] {"0","1"});
-		statusCodes.put("search", new String[] {"0","1"});
+		statusCodes.put("search", new String[] {"0","1","2"});
 		statusCodes.put("exit", new String[] {"0","1"});
 		statusCodes.put("quit", new String[] {});
 		statusCodes.put("friends", new String[] {"0","1"});
@@ -59,6 +59,7 @@ public class ServerMessage {
 
 		keyword = keywd;
 		rawMessage = rawmessage;
+		System.out.println("Raw message: " + rawmessage);
 		Boolean isSyntaxCorrect = isSyntaxCorrect(keyword,rawMessage);
 		if(isSyntaxCorrect) {
 			System.out.println("Syntax is correct of the message you're trying to send from server to client..");
@@ -97,6 +98,7 @@ public class ServerMessage {
 		
 		//We check if there's a status needed for that message, and if so, check if status code is correct 
 		if(statusCodes.containsKey(keyword)) {
+			System.out.println("Status Code is: " + message.get(0));
 			boolean statusCorrect = isStatusCodeCorrect(keyword,message.get(0));
 			if(statusCorrect == false) {System.out.println("Status is INCORRECT in message you're trying to send..");return false;}
 		}
@@ -129,7 +131,9 @@ public class ServerMessage {
 			}System.out.println("Number of fields is INCORRECT in a message..");return false; //here, we know msg size is not 2 - wrong # of fields - syntax incorrect
 		}
 		
-		if(keyword.equals(keywords[5])){}
+		if(keyword.equals(keywords[5])){
+			return true;
+		}
 		if(keyword.equals(keywords[6])){}
 		if(keyword.equals(keywords[7])){}
 		if(keyword.equals(keywords[8])){}
@@ -168,6 +172,7 @@ public class ServerMessage {
 
 		String[] keywordStatuses = statusCodes.get(keywd); //Get statuses for that keyword
 		for (String status1 : keywordStatuses) { //Check if status matches the array of statuses for that keyword.
+			System.out.println("stored status: " + status1 + "my Status: " + status); //remove later
 			if(status.equals(status1)) {return true;}
 		}
            return false;
