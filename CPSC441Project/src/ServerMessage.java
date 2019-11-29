@@ -111,7 +111,7 @@ public class ServerMessage {
 			//3.Join room
 			System.out.println("You selected a join room keyword in message to send..");
 			//Check if the number of fields in message (not including keyword) is appropriate
-			if (rawMessage.size()==6) {
+			if (rawMessage.size()>=6) {
 				System.out.println("Number of fields is correct in a message..");
 				//Here, we already know status is correct and message has 3 fields. All good!
 				return true;

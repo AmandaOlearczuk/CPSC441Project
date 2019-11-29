@@ -277,10 +277,20 @@ public class SelectServer {
 		user.updateInRoom(room);
 		user.updateIsAdmin(false);
 		
-		//“join <status> <roomName> <adminName> <users> <messages> <givenUsername>”
-		boolean isSuccessful = sendMessage("join",
-				new ArrayList<String>(Arrays.asList("2",room.getRoomName(),room.getAdmin().getUsername()
-						,room.getGuestUsernamesAsString(),"blablabla",user.getUsername())),socketChannel);	
+		ArrayList<String> sendArray = new ArrayList<String>();
+		sendArray.add("2");
+		sendArray.add(room.getRoomName());
+		sendArray.add(room.getAdmin().getUsername());
+		sendArray.add(room.getGuestUsernamesAsString());
+		sendArray.add("blablabla");
+		sendArray.add(user.getUsername());
+		//LinkedList<String> conversation = room.
+		for (int i = 0; i < room.getConversation().size(); i++) {
+			sendArray.add(room.getConversation().get(i));
+		}
+
+		//"join <status> <roomName> <adminName> <users> <messages> <givenUsername>"
+		boolean isSuccessful = sendMessage("join", sendArray, socketChannel);
 		
 		//Notify everyone users who just joined a room, by sending msg to one above in exact same way
 		String notifyMsg = user.getUsername() + " joined a room.";

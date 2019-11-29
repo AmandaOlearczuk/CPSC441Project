@@ -15,13 +15,14 @@ public class Broadcaster {
 	private Room room;
 	private String message;
 	private Boolean includeSenderName;
-	
+
 	public Broadcaster(Room r,String msg,User sender,Boolean senderInclude) {
 		userWhoSends = sender;
 		room = r;
 		message=msg;
 		allGuestsInRoom = room.getGuests(); //All guests
 		includeSenderName = senderInclude;
+		r.addMessage(sender + ": " + msg);
 	}
 	
 	/**

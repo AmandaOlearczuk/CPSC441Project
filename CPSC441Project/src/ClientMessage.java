@@ -80,13 +80,13 @@ public class ClientMessage {
 		if(keyword.equals(keywords[3])){
 			//3- join room
 			//Check if there's only one field for room name
-			if (message.size()==1) {return true;}
+			if (message.size()==1 || message.size()==2) {return true;}
 			return false;
 		}
 		//4 - host room
 		if(keyword.equals(keywords[4])){
 			//Check if there's only one field for room name
-			if (message.size()==1) { return true;}
+			if (message.size()==1 || message.size()==2) { return true;}
 			return false;
 		}
 		if(keyword.equals(keywords[5])){}

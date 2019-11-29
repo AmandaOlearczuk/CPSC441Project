@@ -106,7 +106,10 @@ class TCPClient {
     		System.out.println("Welcome " + msgsArray[6] + "! Room: " + roomCode + " '"+msgsArray[2]+"'"+ " Admin: "+ msgsArray[3]);
     		System.out.println("Currently in room: "+ msgsArray[3] + msgsArray[4]);
     		System.out.println("Type '/o' for options.");
-		
+		int size = msgsArray.length;
+		for(int i = 7; i < size; i++){
+			System.out.println(msgsArray[i]);
+		}
     		//5. Start up threads for reading user upput & fetching msgs from a server.
     		Thread1 t1= new Thread1(outbuffer); //This thread is asking for user input to send message to the chat & server
     		Thread2 t2= new Thread2(inBuffer); //This thread is constantly fetching new messages to the chatroom

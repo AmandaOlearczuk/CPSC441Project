@@ -1,6 +1,7 @@
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 
 public class Room {
 	private String roomCode;
@@ -9,6 +10,7 @@ public class Room {
 	private ArrayList<User> guests ;
 	private ArrayList<AuthorizedUser> blacklist;
 	private ArrayList<Integer> anonNumberTracker = new ArrayList<Integer>();
+	private LinkedList<String> conversation = new LinkedList<String>();
 	//private LinkedList<User,Message> messages;
 	
 	
@@ -19,6 +21,10 @@ public class Room {
 		guests = roomGuests;
 		blacklist = blacklst;
 		if(adminUser.getUsername().contains("anon")) {anonNumberTracker.add(0);} //if adminUser is anonymous.
+	}
+
+	public LinkedList<String> getConversation() {
+		return conversation;
 	}
 
 	public String getRoomCode() {
@@ -89,8 +95,13 @@ public class Room {
 		}
 		return result;
 	}
-	
-	
-	
-	
+
+	public boolean addMessage(String msg){
+		if(this.conversation.size() >= 400) this.conversation.removeFirst();
+		this.conversation.add(msg);
+		return true;
+	}
+
+
+
 }
